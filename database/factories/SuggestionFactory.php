@@ -13,8 +13,11 @@ class SuggestionFactory extends Factory
      */
     public function definition()
     {
-        return [
-            //
-        ];
+      return [
+        'title' => $this->faker->sentence(),
+        'description' => $this->faker->paragraph(),
+        'user_email' => $this->faker->email(),
+        'state' => 'à modérer'        
+    ];
     }
 }
