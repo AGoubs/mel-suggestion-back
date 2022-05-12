@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Suggestion;
+use App\Models\Vote;
 use Illuminate\Http\Request;
 
 class SuggestionController extends Controller
@@ -15,6 +16,11 @@ class SuggestionController extends Controller
   public function index()
   {
     $suggestions = Suggestion::all();
+
+    foreach ($suggestions as $suggestion) {
+      $votes = Vote::where('suggestion_id', $suggestion->id)->count();
+      $suggestion->nb_votes = $votes;
+    }
     return response()->json($suggestions);
   }
 
