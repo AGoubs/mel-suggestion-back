@@ -15,7 +15,7 @@ class SuggestionController extends Controller
    */
   public function index()
   {
-    $suggestions = Suggestion::all();
+    $suggestions = Suggestion::orderBy('updated_at', 'DESC')->get();
 
     foreach ($suggestions as $suggestion) {
       $votes = Vote::where('suggestion_id', $suggestion->id)->count();
@@ -48,7 +48,7 @@ class SuggestionController extends Controller
 
     $newSuggestion->save();
 
-    return response()->json($newSuggestion);
+    return response()->json("Hey");
   }
 
   /**
