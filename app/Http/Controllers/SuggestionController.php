@@ -15,11 +15,18 @@ class SuggestionController extends Controller
    */
   public function index()
   {
-    $suggestions = Suggestion::orderBy('updated_at', 'DESC')->get();
+    $suggestions = Suggestion::all();
 
     foreach ($suggestions as $suggestion) {
       $votes = Vote::where('suggestion_id', $suggestion->id)->count();
       $suggestion->nb_votes = $votes;
+      
+      //TODO : Remplacer par user en cours
+      $my_vote = Suggestion::where('id', $suggestion->id)->where('user_email', 'Arnaud@goubier.fr')->get();
+      if (!$my_vote->isEmpty()) {
+        // dd($my_vote);
+        $suggestion->my_vote = true;
+      }
     }
     return response()->json($suggestions);
   }
@@ -47,8 +54,9 @@ class SuggestionController extends Controller
     ]);
 
     $newSuggestion->save();
+    $newSuggestion->nb_votes = 0;
 
-    return response()->json("Hey");
+    return response()->json($newSuggestion);
   }
 
   /**
@@ -77,14 +85,10 @@ class SuggestionController extends Controller
     $request->validate([
       'title' => 'required|max:255',
       'description' => 'required',
-      'user_email' => 'required',
-      'state' => 'required'
     ]);
 
     $suggestion->title = $request->get('title');
     $suggestion->description = $request->get('description');
-    $suggestion->user_email = $request->get('user_email');
-    $suggestion->state = $request->get('state');
 
     $suggestion->save();
 
@@ -102,6 +106,6 @@ class SuggestionController extends Controller
     $suggestion = Suggestion::findOrFail($id);
     $suggestion->delete();
 
-    return response()->json($suggestion::all());
+    return response()->json("ok");
   }
 }

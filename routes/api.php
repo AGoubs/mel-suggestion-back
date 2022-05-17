@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SuggestionController;
+use App\Http\Controllers\VoteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,3 +17,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::apiResource('suggestions', SuggestionController::class);
+Route::apiResource('votes', VoteController::class);
