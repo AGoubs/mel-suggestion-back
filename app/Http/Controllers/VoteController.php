@@ -42,6 +42,18 @@ class VoteController extends Controller
     return response()->json($newVote);
   }
 
+   /**
+   * Display the specified vote.
+   *
+   * @param  int  $id
+   * @return \Illuminate\Http\Response
+   */
+  public function show($id)
+  {
+    $vote = Vote::findOrFail($id);
+    return response()->json($vote);
+  }
+
  /**
    * Remove the specified vote from storage.
    *
@@ -53,6 +65,6 @@ class VoteController extends Controller
     $vote = Vote::findOrFail($id);
     $vote->delete();
 
-    return response()->json($vote::all());
+    return response()->json("destroyed");
   }
 }

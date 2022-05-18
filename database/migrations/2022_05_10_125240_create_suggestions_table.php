@@ -19,6 +19,7 @@ class CreateSuggestionsTable extends Migration
             $table->longText('description');
             $table->string('user_email');
             $table->string('state');
+            $table->string('instance');
             $table->timestamps();
         });
     }
