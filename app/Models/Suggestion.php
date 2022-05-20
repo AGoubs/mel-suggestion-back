@@ -42,7 +42,7 @@ class Suggestion extends Model
     foreach ($my_suggestions as $suggestion) {
       $votes = Vote::where('suggestion_id', $suggestion->id)->count();
       $suggestion->nb_votes = $votes;
-      $suggestion->my_vote = true;
+      $suggestion->my_suggestion = true;
     }
 
     return $my_suggestions;
