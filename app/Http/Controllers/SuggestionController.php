@@ -20,7 +20,12 @@ class SuggestionController extends Controller
     foreach ($suggestions as $suggestion) {
       $votes = Vote::where('suggestion_id', $suggestion->id)->count();
       $suggestion->nb_votes = $votes;
-      
+
+      $voted = Vote::where('suggestion_id', $suggestion->id)->where('user_email', 'Arnaud@goubier.fr')->get();
+      if (!$voted->isEmpty()) {
+        $suggestion->voted = true;
+        $suggestion->vote_id = $voted->first()->id;
+      }
       //TODO : Remplacer par user en cours
       $my_vote = Suggestion::where('id', $suggestion->id)->where('user_email', 'Arnaud@goubier.fr')->get();
       if (!$my_vote->isEmpty()) {
