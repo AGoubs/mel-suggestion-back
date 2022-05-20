@@ -13,6 +13,10 @@ class SuggestionController extends Controller
   public function __construct()
   {
     Session::put('email', 'Arnaud@goubier.fr');
+
+    if (in_array(Session::get('email'), config('moderator')['moderator'])) {
+      Session::put('is_moderator', true);
+    }
   }
   /**
    * Display a listing of the moderate and user's suggestions.
@@ -21,12 +25,14 @@ class SuggestionController extends Controller
    */
   public function index()
   {
-    $suggestions = Suggestion::getAllModerateSuggestions();
+    if (Session::get('is_moderator')) {
+      $suggestions = Suggestion::getAllSuggestions();
+    } else {
+      $suggestions = Suggestion::getAllModerateSuggestions();
 
-    //We add all user's suggestions
-    $suggestions = $suggestions->concat(Suggestion::getAllUserSuggestions());
-
-    // dd($suggestions);
+      //We add all user's suggestions
+      $suggestions = $suggestions->concat(Suggestion::getAllUserSuggestions());
+    }
 
     return response()->json($suggestions);
   }

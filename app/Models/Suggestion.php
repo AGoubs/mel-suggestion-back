@@ -18,33 +18,64 @@ class Suggestion extends Model
     'state',
   ];
 
+  public static function getAllSuggestions()
+  {
+    $suggestions = Suggestion::all();
+
+    $suggestions = self::countVotes($suggestions);
+
+    $suggestions = self::isVoted($suggestions);
+
+    return $suggestions;
+  }
+
   public static function getAllModerateSuggestions()
   {
     $suggestions = Suggestion::where('state', 'moderate')->where('user_email', '<>', Session::get('email'))->get();
 
-    foreach ($suggestions as $suggestion) {
-      $votes = Vote::where('suggestion_id', $suggestion->id)->count();
-      $suggestion->nb_votes = $votes;
+    $suggestions = self::countVotes($suggestions);
 
-      $voted = Vote::where('suggestion_id', $suggestion->id)->where('user_email', Session::get('email'))->get();
-      if (!$voted->isEmpty()) {
-        $suggestion->voted = true;
-        $suggestion->vote_id = $voted->first()->id;
-      }
-    }
+    $suggestions = self::isVoted($suggestions);
 
     return $suggestions;
   }
 
   public static function getAllUserSuggestions()
   {
-    $my_suggestions = Suggestion::where('user_email', Session::get('email'))->get();
-    foreach ($my_suggestions as $suggestion) {
+    $suggestions = Suggestion::where('user_email', Session::get('email'))->get();
+    $suggestions = self::addMySuggestion($suggestions);
+
+    return $suggestions;
+  }
+
+  private function countVotes($suggestions)
+  {
+    foreach ($suggestions as $suggestion) {
+      $votes = Vote::where('suggestion_id', $suggestion->id)->count();
+      $suggestion->nb_votes = $votes;
+    }
+    return $suggestions;
+  }
+
+  private function isVoted($suggestions)
+  {
+    foreach ($suggestions as $suggestion) {
+      $voted = Vote::where('suggestion_id', $suggestion->id)->where('user_email', Session::get('email'))->get();
+      if (!$voted->isEmpty()) {
+        $suggestion->voted = true;
+        $suggestion->vote_id = $voted->first()->id;
+      }
+    }
+    return $suggestions;
+  }
+
+  private function addMySuggestion($suggestions)
+  {
+    foreach ($suggestions as $suggestion) {
       $votes = Vote::where('suggestion_id', $suggestion->id)->count();
       $suggestion->nb_votes = $votes;
       $suggestion->my_suggestion = true;
     }
-
-    return $my_suggestions;
+    return $suggestions;
   }
 }
