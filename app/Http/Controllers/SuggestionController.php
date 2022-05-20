@@ -5,34 +5,29 @@ namespace App\Http\Controllers;
 use App\Models\Suggestion;
 use App\Models\Vote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class SuggestionController extends Controller
 {
+
+  public function __construct()
+  {
+    Session::put('email', 'Arnaud@goubier.fr');
+  }
   /**
-   * Display a listing of the suggestions.
+   * Display a listing of the moderate and user's suggestions.
    *
    * @return \Illuminate\Http\Response
    */
   public function index()
   {
-    $suggestions = Suggestion::all();
+    $suggestions = Suggestion::getAllModerateSuggestions();
 
-    foreach ($suggestions as $suggestion) {
-      $votes = Vote::where('suggestion_id', $suggestion->id)->count();
-      $suggestion->nb_votes = $votes;
+    //We add all user's suggestions
+    $suggestions = $suggestions->concat(Suggestion::getAllUserSuggestions());
 
-      $voted = Vote::where('suggestion_id', $suggestion->id)->where('user_email', 'Arnaud@goubier.fr')->get();
-      if (!$voted->isEmpty()) {
-        $suggestion->voted = true;
-        $suggestion->vote_id = $voted->first()->id;
-      }
-      //TODO : Remplacer par user en cours
-      $my_vote = Suggestion::where('id', $suggestion->id)->where('user_email', 'Arnaud@goubier.fr')->get();
-      if (!$my_vote->isEmpty()) {
-        // dd($my_vote);
-        $suggestion->my_vote = true;
-      }
-    }
+    // dd($suggestions);
+
     return response()->json($suggestions);
   }
 
@@ -47,15 +42,15 @@ class SuggestionController extends Controller
     $request->validate([
       'title' => 'required|max:255',
       'description' => 'required',
-      'user_email' => 'required',
-      'state' => 'required'
     ]);
 
+    //TODO Static values
     $newSuggestion = new Suggestion([
       'title' => $request->get('title'),
       'description' => $request->get('description'),
-      'user_email' => $request->get('user_email'),
-      'state' => $request->get('state')
+      'user_email' => Session::get('email'),
+      'state' => 'moderate',
+      'instance' => 'bnum',
     ]);
 
     $newSuggestion->save();
