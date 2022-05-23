@@ -29,9 +29,9 @@ class Suggestion extends Model
     return $suggestions;
   }
 
-  public static function getAllModerateSuggestions()
+  public static function getAllVoteSuggestions()
   {
-    $suggestions = Suggestion::where('state', 'moderate')->where('user_email', '<>', Session::get('email'))->get();
+    $suggestions = Suggestion::where('state', 'vote')->orWhere('state', 'validate')->where('user_email', '<>', Session::get('email'))->get();
 
     $suggestions = self::countVotes($suggestions);
 

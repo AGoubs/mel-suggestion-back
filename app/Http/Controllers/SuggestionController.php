@@ -31,7 +31,7 @@ class SuggestionController extends Controller
     if (Session::get('is_moderator')) {
       $suggestions = Suggestion::getAllSuggestions();
     } else {
-      $suggestions = Suggestion::getAllModerateSuggestions();
+      $suggestions = Suggestion::getAllVoteSuggestions();
 
       //We add all user's suggestions
       $suggestions = $suggestions->concat(Suggestion::getAllUserSuggestions());
