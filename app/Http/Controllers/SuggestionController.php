@@ -9,15 +9,17 @@ use Illuminate\Support\Facades\Session;
 
 class SuggestionController extends Controller
 {
-
   public function __construct()
   {
     Session::put('email', 'Arnaud@goubier.fr');
 
     if (in_array(Session::get('email'), config('moderator')['moderator'])) {
       Session::put('is_moderator', true);
+    } else {
+      Session::put('is_moderator', false);
     }
   }
+
   /**
    * Display a listing of the moderate and user's suggestions.
    *
@@ -25,6 +27,7 @@ class SuggestionController extends Controller
    */
   public function index()
   {
+    // dd(Session::get('is_moderator'));
     if (Session::get('is_moderator')) {
       $suggestions = Suggestion::getAllSuggestions();
     } else {
@@ -95,6 +98,28 @@ class SuggestionController extends Controller
 
     $suggestion->title = $request->get('title');
     $suggestion->description = $request->get('description');
+
+    $suggestion->save();
+
+    return response()->json($suggestion);
+  }
+
+  /**
+   * Update the specified suggestion state in storage.
+   *
+   * @param  \Illuminate\Http\Request  $request
+   * @param  int  $id
+   * @return \Illuminate\Http\Response
+   */
+  public function updateState(Request $request, $id)
+  {
+    $suggestion = Suggestion::findOrFail($id);
+
+    $request->validate([
+      'state' => 'required',
+    ]);
+
+    $suggestion->state = $request->get('state');
 
     $suggestion->save();
 

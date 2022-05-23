@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ModeratorController;
 use App\Http\Controllers\SuggestionController;
 use App\Http\Controllers\VoteController;
 use Illuminate\Http\Request;
@@ -16,5 +17,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::apiResource('moderator', ModeratorController::class);
 Route::apiResource('suggestions', SuggestionController::class);
+Route::put('suggestions/state/{id}', [SuggestionController::class, 'updateState']);
 Route::apiResource('votes', VoteController::class);
