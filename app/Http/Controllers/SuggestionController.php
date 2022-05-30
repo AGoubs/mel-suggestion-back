@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Suggestion;
-use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -27,7 +26,6 @@ class SuggestionController extends Controller
    */
   public function index()
   {
-    // dd(Session::get('is_moderator'));
     if (Session::get('is_moderator')) {
       $suggestions = Suggestion::getAllSuggestions();
     } else {

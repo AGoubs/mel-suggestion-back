@@ -17,7 +17,7 @@ class SuggestionFactory extends Factory
         'title' => $this->faker->sentence(),
         'description' => $this->faker->paragraph(),
         'user_email' => $this->faker->email(),
-        'state' => 'moderate',
+        'state' => 'vote',
         'instance' => 'bnum'        
     ];
     }
