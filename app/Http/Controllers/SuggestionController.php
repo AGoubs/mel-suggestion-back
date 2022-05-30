@@ -99,7 +99,9 @@ class SuggestionController extends Controller
 
     $suggestion->save();
 
-    return response()->json($suggestion);
+    $suggestion = Suggestion::isMySuggestion($suggestion);
+
+    return response()->json(Suggestion::countVote($suggestion));
   }
 
   /**
@@ -112,16 +114,16 @@ class SuggestionController extends Controller
   public function updateState(Request $request, $id)
   {
     $suggestion = Suggestion::findOrFail($id);
-
+    
     $request->validate([
       'state' => 'required',
     ]);
-
+    
     $suggestion->state = $request->get('state');
 
     $suggestion->save();
 
-    return response()->json($suggestion);
+    return response()->json(Suggestion::countVote($suggestion));
   }
 
   /**

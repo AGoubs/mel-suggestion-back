@@ -22,7 +22,7 @@ class Suggestion extends Model
   {
     $suggestions = Suggestion::all();
 
-    $suggestions = self::countVotes($suggestions);
+    $suggestions = self::countAllVotes($suggestions);
 
     $suggestions = self::isVoted($suggestions);
 
@@ -33,7 +33,7 @@ class Suggestion extends Model
   {
     $suggestions = Suggestion::where('state', 'vote')->orWhere('state', 'validate')->where('user_email', '<>', Session::get('email'))->get();
 
-    $suggestions = self::countVotes($suggestions);
+    $suggestions = self::countAllVotes($suggestions);
 
     $suggestions = self::isVoted($suggestions);
 
@@ -48,7 +48,22 @@ class Suggestion extends Model
     return $suggestions;
   }
 
-  private function countVotes($suggestions)
+  public static function countVote($suggestion)
+  {
+    $votes = Vote::where('suggestion_id', $suggestion->id)->count();
+    $suggestion->nb_votes = $votes;
+    return $suggestion;
+  }
+
+  public static function isMySuggestion($suggestion)
+  {
+    if ($suggestion->user_email == Session::get('email')) {
+      $suggestion->my_suggestion = true;
+    }
+    return $suggestion;
+  }
+
+  private function countAllVotes($suggestions)
   {
     foreach ($suggestions as $suggestion) {
       $votes = Vote::where('suggestion_id', $suggestion->id)->count();
