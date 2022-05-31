@@ -22,6 +22,12 @@ class Suggestion extends Model
   {
     $suggestions = Suggestion::all();
 
+    foreach ($suggestions as $suggestion) {
+      if ($suggestion->state == 'moderate') {
+        $suggestion->updated_at = now();
+      }
+    }
+
     $suggestions = self::countAllVotes($suggestions);
 
     $suggestions = self::isVoted($suggestions);
