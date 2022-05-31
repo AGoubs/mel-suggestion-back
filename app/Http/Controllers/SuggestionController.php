@@ -139,4 +139,14 @@ class SuggestionController extends Controller
 
     return response()->json("ok");
   }
+
+  /**
+   * Display a listing of text from the config
+   *
+   * @return \Illuminate\Http\Response
+   */
+  public function getText()
+  {
+    return response()->json(config('text'));
+  }
 }

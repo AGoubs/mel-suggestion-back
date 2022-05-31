@@ -20,4 +20,5 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('moderator', ModeratorController::class);
 Route::apiResource('suggestions', SuggestionController::class);
 Route::put('suggestions/state/{id}', [SuggestionController::class, 'updateState']);
+Route::get('text', [SuggestionController::class, 'getText']);
 Route::apiResource('votes', VoteController::class);
