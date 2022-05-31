@@ -31,7 +31,9 @@ class Suggestion extends Model
 
   public static function getAllVoteSuggestions()
   {
-    $suggestions = Suggestion::where('state', 'vote')->orWhere('state', 'validate')->where('user_email', '<>', Session::get('email'))->get();
+    $suggestions = Suggestion::where('user_email', '<>', Session::get('email'))->where(function ($query) {
+      $query->where('state', 'vote')->orWhere('state', 'validate');
+    })->get();
 
     $suggestions = self::countAllVotes($suggestions);
 
