@@ -18,40 +18,43 @@ class Suggestion extends Model
     'state',
   ];
 
-  public static function getAllSuggestions()
+  public static function getAllSuggestionsByInstance($moderator = false)
   {
-    $suggestions = Suggestion::all();
+    $suggestions = Suggestion::where('instance', env('INSTANCE'))->get();
 
-    foreach ($suggestions as $suggestion) {
+    $suggestions_ids = [];
+
+    foreach ($suggestions as $key => $suggestion) {
+      if (!$moderator) {
+        if ($suggestion->state == 'moderate' && $suggestion->user_email != Session::get('email')) {
+          unset($suggestions[$key]);
+          continue;
+        }
+      }
       if ($suggestion->state == 'moderate') {
         $suggestion->updated_at = now();
       }
+      if ($suggestion->user_email == Session::get('email')) {
+        $suggestion->my_suggestion = true;
+      }
+      array_push($suggestions_ids, $suggestion->id);
     }
 
-    $suggestions = self::countAllVotes($suggestions);
-
-    $suggestions = self::isVoted($suggestions);
-
-    return $suggestions;
-  }
-
-  public static function getAllVoteSuggestions()
-  {
-    $suggestions = Suggestion::where('user_email', '<>', Session::get('email'))->where(function ($query) {
-      $query->where('state', 'vote')->orWhere('state', 'validate');
-    })->get();
-
-    $suggestions = self::countAllVotes($suggestions);
-
-    $suggestions = self::isVoted($suggestions);
-
-    return $suggestions;
-  }
-
-  public static function getAllUserSuggestions()
-  {
-    $suggestions = Suggestion::where('user_email', Session::get('email'))->get();
-    $suggestions = self::addMySuggestion($suggestions);
+    $votes = Vote::whereIn('suggestion_id', $suggestions_ids)->get();
+    foreach ($suggestions as $key => $suggestion) {
+      $nb_votes = 0;
+      foreach ($votes as $vote) {
+        if ($vote->suggestion_id == $suggestion->id) {
+          $nb_votes++;
+          if ($vote->user_email == Session::get('email')) {
+            $suggestion->voted = true;
+            $suggestion->vote_id = $vote->id;
+          }
+        }
+      }
+      $suggestion->nb_votes = $nb_votes;
+    }
+    // dd($suggestions);
 
     return $suggestions;
   }
@@ -69,36 +72,5 @@ class Suggestion extends Model
       $suggestion->my_suggestion = true;
     }
     return $suggestion;
-  }
-
-  private function countAllVotes($suggestions)
-  {
-    foreach ($suggestions as $suggestion) {
-      $votes = Vote::where('suggestion_id', $suggestion->id)->count();
-      $suggestion->nb_votes = $votes;
-    }
-    return $suggestions;
-  }
-
-  private function isVoted($suggestions)
-  {
-    foreach ($suggestions as $suggestion) {
-      $voted = Vote::where('suggestion_id', $suggestion->id)->where('user_email', Session::get('email'))->get();
-      if (!$voted->isEmpty()) {
-        $suggestion->voted = true;
-        $suggestion->vote_id = $voted->first()->id;
-      }
-    }
-    return $suggestions;
-  }
-
-  private function addMySuggestion($suggestions)
-  {
-    foreach ($suggestions as $suggestion) {
-      $votes = Vote::where('suggestion_id', $suggestion->id)->count();
-      $suggestion->nb_votes = $votes;
-      $suggestion->my_suggestion = true;
-    }
-    return $suggestions;
   }
 }

@@ -26,15 +26,8 @@ class SuggestionController extends Controller
    */
   public function index()
   {
-    if (Session::get('is_moderator')) {
-      $suggestions = Suggestion::getAllSuggestions();
-    } else {
-      $suggestions = Suggestion::getAllVoteSuggestions();
-
-      //We add all user's suggestions
-      $suggestions = $suggestions->concat(Suggestion::getAllUserSuggestions());
-    }
-
+    $suggestions = Suggestion::getAllSuggestionsByInstance(Session::get('is_moderator'));
+    
     return response()->json($suggestions);
   }
 
@@ -57,7 +50,7 @@ class SuggestionController extends Controller
       'description' => $request->get('description'),
       'user_email' => Session::get('email'),
       'state' => 'moderate',
-      'instance' => 'bnum',
+      'instance' => env('INSTANCE'),
     ]);
 
     $newSuggestion->save();
@@ -114,11 +107,11 @@ class SuggestionController extends Controller
   public function updateState(Request $request, $id)
   {
     $suggestion = Suggestion::findOrFail($id);
-    
+
     $request->validate([
       'state' => 'required',
     ]);
-    
+
     $suggestion->state = $request->get('state');
 
     $suggestion->save();
