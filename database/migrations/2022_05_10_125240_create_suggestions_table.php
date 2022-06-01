@@ -20,6 +20,7 @@ class CreateSuggestionsTable extends Migration
             $table->string('user_email');
             $table->string('state');
             $table->string('instance');
+            $table->index('instance');
             $table->timestamps();
         });
     }
